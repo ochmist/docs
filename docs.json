@@ -17,7 +17,13 @@
             "group": "Getting started",
             "pages": [
               "index",
-              "quickstart",
+              "ONBOARDING",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Development",
+            "pages": [
               "development",
               "architecture"
             ]

@@ -1,0 +1,173 @@
+# Zero to Deploy: The Complete Onboarding Guide 🚀
+
+Welcome to the team! This guide is designed to take you from "I just got access" to "I just deployed my first feature" with zero prior knowledge of our stack.
+
+---
+
+## Part 1: The Golden Path (Setup)
+
+Follow these steps exactly to get your machine ready.
+
+### 1. Install Measurements Tools
+
+Open your terminal and check if you have these tools. If not, install them.
+
+**Python 3.13+**
+```bash
+python3 --version
+# If missing: brew install python@3.13
+```
+
+**Node.js 18+**
+```bash
+node --version
+# If missing: brew install node@18
+```
+
+**Firebase CLI**
+```bash
+firebase --version
+# If missing: npm install -g firebase-tools
+# Then login: firebase login
+```
+
+### 2. Get the Code
+
+```bash
+# Navigate to where you keep projects
+cd ~/Projects
+
+# Clone the repo
+git clone <repository-url> landing
+cd landing
+```
+
+### 3. Setup the Backend Environment
+
+The backend lives in the `functions/` folder. We use a **virtual environment** to keep Python packages isolated.
+
+```bash
+cd functions
+
+# Create the virtual environment (only do this once)
+python3 -m venv venv
+
+# Activate it (do this EVERY time you open a new terminal)
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 4. Create Your Local Config
+
+You need secrets to run the app. Create a `.env` file in `functions/`:
+
+```bash
+# In functions/ directory:
+touch .env
+```
+
+Paste this into `.env`:
+```ini
+GEMINI_API_KEY=ask-team-lead-for-this
+ENVIRONMENT=development
+```
+
+---
+
+## Part 2: Starting the Engine 🏎️
+
+Now let's run the backend locally. We use the **Firebase Emulator Suite** which simulates the cloud on your laptop.
+
+1.  **Open a new terminal** in the project root (`landing/`).
+2.  Run the emulators:
+
+```bash
+firebase emulators:start
+```
+
+3.  **Wait** until you see: `All emulators ready!`.
+4.  Open the **Emulator UI** in your browser: [http://localhost:4000](http://localhost:4000).
+
+You now have a full backend running locally!
+
+---
+
+## Part 3: Your Day-to-Day Workflow
+
+This is how we actually write code.
+
+### 1. Always Start Here
+1.  `git pull origin main` (Get latest code)
+2.  `git checkout -b my-new-feature` (Create a branch)
+3.  `firebase emulators:start` (Run the backend)
+
+### 2. Making a Change
+Let's say you're adding a log message to an endpoint.
+
+1.  Open `functions/codethe5_backend/forms/waitlist_form.py`.
+2.  Add your change.
+3.  **Save the file.** The emulator will notice the change, but **it won't reload automatically** for Python functions sometimes. Check your terminal logs.
+
+### 3. Running Tests (CRITICAL)
+We have a strict "No Broken Windows" policy. 100% of tests must pass.
+
+```bash
+# Open a NEW terminal tab
+cd functions
+source venv/bin/activate
+
+# Run all tests
+pytest
+```
+
+If you see red, fix it before moving on.
+
+### 4. Code Reviews
+1.  Commit your changes: `git commit -am "Added logging"`
+2.  Push: `git push origin my-new-feature`
+3.  Open a Pull Request (PR) on GitHub.
+
+---
+
+## Part 4: Going Live (Deployment) 🚢
+
+**Note:** usually only senior devs deploy to production, but you should know how it works.
+
+### The "Pre-Flight" Check
+Before you can deploy, our script runs to ensure you don't break production.
+
+Try it now:
+```bash
+./scripts/predeploy.sh
+```
+It runs all tests and checks code coverage. If this fails, deployment fails.
+
+### Deploying
+To ship your code to Google Cloud:
+
+```bash
+firebase deploy --only functions
+```
+
+This updates the live endpoints.
+
+---
+
+## FAQ
+
+**Q: My "source venv/bin/activate" fails?**
+A: Make sure you are in the `functions/` directory.
+
+**Q: Pytest says "Module not found"?**
+A: You probably forgot to run `pip install -r requirements.txt` or activate your venv.
+
+**Q: The emulator says "Port 5001 is taken"?**
+A: You likely have another emulator running in a different terminal. Find it and kill it (Ctrl+C), or run `killall node`.
+
+---
+
+## Next Steps
+
+Now that you're set up, read the [Architecture Guide](./ARCHITECTURE.md) to understand how the pieces fit together.
