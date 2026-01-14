@@ -1,80 +1,268 @@
+# Backend Quickstart ⚡
+
+Get your development environment running in 15 minutes.
+
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+
+## Prerequisites
+
+Before starting, ensure you have:
+
+| Tool | Version | Check Command |
+|------|---------|---------------|
+| Python | 3.13+ | `python3 --version` |
+| Node.js | 18+ | `node --version` |
+| Firebase CLI | Latest | `firebase --version` |
+| Git | Any | `git --version` |
+
+### Installing Firebase CLI
+
+```bash
+npm install -g firebase-tools
+firebase login
+```
+
 ---
 
-## Get started in three steps
+## Step 1: Clone the Repository
 
-Get your documentation site running locally and make your first customization.
+```bash
+git clone <repository-url>
+cd landing
+```
 
-### Step 1: Set up your local environment
+---
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+## Step 2: Set Up Python Environment
 
-### Step 2: Deploy your changes
+```bash
+# Navigate to functions directory
+cd functions
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+# Create virtual environment
+python3 -m venv venv
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+# Activate virtual environment
+source venv/bin/activate  # macOS/Linux
+# Windows: venv\Scripts\activate
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+# Install dependencies
+pip install -r requirements.txt
+```
 
-### Step 3: Go live
+> [!TIP]
+> Always activate the virtual environment before working on the backend:
+> ```bash
+> cd functions && source venv/bin/activate
+> ```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+---
 
-## Next steps
+## Step 3: Configure Environment Variables
 
-Now that you have your docs running, explore these key features:
+Create `functions/.env` for local development:
 
-<CardGroup cols={2}>
+```bash
+# Required for AI endpoints
+GEMINI_API_KEY=your-gemini-api-key
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+# Development mode (permissive CORS)
+ENVIRONMENT=development
+```
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+### Getting a Gemini API Key
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+2. Click "Create API Key"
+3. Copy the key to your `.env` file
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+> [!WARNING]
+> Never commit `.env` files. They're already in `.gitignore`.
 
-</CardGroup>
+---
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Step 4: Run the Firebase Emulator
+
+From the project root (`landing/`):
+
+```bash
+# Start all emulators (Auth, Firestore, Functions)
+firebase emulators:start
+```
+
+You'll see output like:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app │
+├────────────────┬──────────────────┬─────────────────────────┤
+│ Emulator       │ Host:Port        │ View in Emulator UI     │
+├────────────────┼──────────────────┼─────────────────────────┤
+│ Authentication │ 127.0.0.1:9099   │ http://127.0.0.1:4000   │
+├────────────────┼──────────────────┼─────────────────────────┤
+│ Firestore      │ 127.0.0.1:8080   │ http://127.0.0.1:4000   │
+├────────────────┼──────────────────┼─────────────────────────┤
+│ Functions      │ 127.0.0.1:5001   │ http://127.0.0.1:4000   │
+└────────────────┴──────────────────┴─────────────────────────┘
+```
+
+Open the **Emulator UI**: http://localhost:4000
+
+---
+
+## Step 5: Verify Your Setup
+
+### Run Tests
+
+```bash
+cd functions
+source venv/bin/activate
+pytest
+```
+
+You should see all tests pass with 95%+ coverage.
+
+### Test an Endpoint (Optional)
+
+With emulators running, test the health endpoint:
+
+```bash
+curl http://127.0.0.1:5001/<project-id>/us-central1/health
+```
+
+Replace `<project-id>` with your Firebase project ID.
+
+---
+
+## Common Commands
+
+### Daily Development
+
+```bash
+# Start emulators (from project root)
+firebase emulators:start
+
+# Run tests (from functions/)
+cd functions && source venv/bin/activate && pytest
+
+# Run specific test file
+pytest tests/test_waitlist_form.py
+
+# Run single test
+pytest tests/test_utils.py::test_validate_email
+
+# View coverage report
+pytest --cov-report=html
+open htmlcov/index.html
+```
+
+### Package Management
+
+```bash
+# Add a new dependency
+pip install package-name
+pip freeze > requirements.txt
+
+# Reinstall all dependencies
+pip install -r requirements.txt
+```
+
+---
+
+## Troubleshooting
+
+### "Python 3.13 not found"
+
+Install Python 3.13:
+```bash
+# macOS with Homebrew
+brew install python@3.13
+
+# Or use pyenv
+pyenv install 3.13.0
+pyenv local 3.13.0
+```
+
+### "Module not found" errors
+
+Ensure virtual environment is activated:
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### "Firebase emulators won't start"
+
+Check if ports are in use:
+```bash
+lsof -i :5001  # Functions
+lsof -i :8080  # Firestore
+lsof -i :9099  # Auth
+```
+
+Kill processes using those ports, or change ports in `firebase.json`.
+
+### "Tests fail with import errors"
+
+Make sure you're in the `functions/` directory:
+```bash
+cd functions
+pytest
+```
+
+---
+
+## Project Structure Quick Reference
+
+```
+landing/                    # Project root
+├── functions/             # 👈 Backend code lives here
+│   ├── main.py            # Cloud Function exports
+│   ├── codethe5_backend/  # Main package
+│   ├── tests/             # Test suite
+│   ├── venv/              # Virtual environment (local only)
+│   └── requirements.txt   # Python dependencies
+├── app/                   # Frontend (Next.js)
+├── firebase.json          # Firebase configuration
+└── .firebaserc            # Project aliases
+```
+
+---
+
+## Next Steps
+
+✅ Environment is set up. Now:
+
+1. **[Development](./DEVELOPMENT.md)** - Learn daily workflows
+2. **[Architecture](./ARCHITECTURE.md)** - Understand the system design
+3. **Pick your first task** - Check with your team lead
+
+---
+
+## Quick Copy-Paste Setup
+
+For the impatient, here's the full setup in one go:
+
+```bash
+# Clone and setup
+git clone <repository-url>
+cd landing/functions
+
+# Python environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Create environment file
+cat > .env << EOF
+GEMINI_API_KEY=your-key-here
+ENVIRONMENT=development
+EOF
+
+# Verify setup
+pytest
+
+# Start emulators (from project root)
+cd ..
+firebase emulators:start
+```
